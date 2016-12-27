@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -52,8 +53,13 @@ def login(request):
                 # https://github.com/pennersr/django-allauth/issues/1523
                 auth_request.return_to_args['next'] = \
                     form.cleaned_data.get('next', '/')
+                realm = getattr(
+                    settings,
+                    "SOCIALACCOUNT_OPENID_REALM",
+                    request.build_absolute_uri('/')
+                )
                 redirect_url = auth_request.redirectURL(
-                    request.build_absolute_uri('/'),
+                    realm,
                     request.build_absolute_uri(callback_url))
                 return HttpResponseRedirect(redirect_url)
             # UnicodeDecodeError:
